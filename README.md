@@ -57,8 +57,8 @@ For a detailed list of changes made throughout the history of BIND 9, see
 the file [CHANGES](CHANGES). See [below](#changes) for details on the
 CHANGES file format.
 
-For up-to-date release notes and errata, see
-[http://www.isc.org/software/bind9/releasenotes](http://www.isc.org/software/bind9/releasenotes)
+For up-to-date versions and release notes, see
+[https://www.isc.org/download/](https://www.isc.org/download/).
 
 For information about supported platforms, see [PLATFORMS](PLATFORMS.md).
 
@@ -201,6 +201,10 @@ vulnerabilities disclosed in CVE-2019-6475 and CVE-2019-6476.
 BIND 9.14.8 is a maintenance release, and also addresses the security
 vulnerability disclosed in CVE-2019-6477.
 
+#### BIND 9.14.9
+
+BIND 9.14.9 is a maintenance release.
+
 ### <a name="build"/> Building BIND
 
 Minimally, BIND requires a UNIX or Linux system with an ANSI C compiler,
@@ -254,9 +258,11 @@ or if you have Xcode already installed you can run `xcode-select --install`.
 
 Portions of BIND that are written in Python, including
 `dnssec-keymgr`, `dnssec-coverage`, `dnssec-checkds`, and some of the
-system tests, require the `argparse` and `ply` modules to be available.
+system tests, require the `argparse`, `ply` and `distutils.core` modules
+to be available.
 `argparse` is a standard module as of Python 2.7 and Python 3.2.
 `ply` is available from [https://pypi.python.org/pypi/ply](https://pypi.python.org/pypi/ply).
+`distutils.core` is required for installation.
 
 #### <a name="opts"/> Compile-time options
 

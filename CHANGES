@@ -1,4 +1,26 @@
-        --- 9.14.8 released ---
+	--- 9.14.9 released ---
+
+5330.	[bug]		'configure --without-python' was ineffective if
+			PYTHON was set in the environment. [GL #1434]
+
+5329.	[bug]		Reconfiguring named caused memory to be leaked when any
+			GeoIP2 database was in use. [GL #1445]
+
+5328.	[bug]		rbtdb.c:rdataset_{get,set}ownercase failed to obtain
+			a node lock. [GL #1417]
+
+5327.	[func]		Added a statistics counter to track queries
+			dropped because the recursive-clients quota was
+			exceeded. [GL #1399]
+
+5326.	[bug]		Add python dependancy on 'distutils.core' to configure.
+			'distutils.core' is required for installation.
+			[GL #1397]
+
+5321.	[bug]		Obtain write lock before updating version->records
+			and version->bytes. [GL #1341]
+
+	--- 9.14.8 released ---
 
 5315.	[bug]		Apply the inital RRSIG expiration spread fixed
 			to all dynamically created records in the zone
