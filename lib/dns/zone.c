@@ -1755,7 +1755,7 @@ dns_zone_rpz_enable(dns_zone_t *zone, dns_rpz_zones_t *rpzs,
 {
 	/*
 	 * Only RBTDB zones can be used for response policy zones,
-	 * because only they have the code to load the create the summary data.
+	 * because only they have the code to create the summary data.
 	 * Only zones that are loaded instead of mmap()ed create the
 	 * summary data and so can be policy zones.
 	 */
@@ -4765,6 +4765,16 @@ zone_postload(dns_zone_t *zone, dns_db_t *db, isc_time_t loadtime,
 		{
 			result = DNS_R_BADZONE;
 			goto cleanup;
+		}
+
+		if (zone->type == dns_zone_master) {
+			result = dns_zone_cdscheck(zone, db, NULL);
+			if (result != ISC_R_SUCCESS) {
+				dns_zone_log(zone, ISC_LOG_ERROR,
+					     "CDS/CDNSKEY consistency checks "
+					     "failed");
+				goto cleanup;
+			}
 		}
 
 		result = dns_zone_verifydb(zone, db, NULL);
@@ -10631,6 +10641,8 @@ dns_zone_expire(dns_zone_t *zone) {
 
 static void
 zone_expire(dns_zone_t *zone) {
+	dns_db_t *db = NULL;
+
 	/*
 	 * 'zone' locked by caller.
 	 */
@@ -10643,6 +10655,32 @@ zone_expire(dns_zone_t *zone) {
 	zone->refresh = DNS_ZONE_DEFAULTREFRESH;
 	zone->retry = DNS_ZONE_DEFAULTRETRY;
 	DNS_ZONE_CLRFLAG(zone, DNS_ZONEFLG_HAVETIMERS);
+
+	/*
+	 * An RPZ zone has expired; before unloading it, we must
+	 * first remove it from the RPZ summary database. The
+	 * easiest way to do this is "update" it with an empty
+	 * database so that the update callback synchonizes
+	 * the diff automatically.
+	 */
+	if (zone->rpzs != NULL && zone->rpz_num != DNS_RPZ_INVALID_NUM) {
+		isc_result_t result;
+		dns_rpz_zone_t *rpz = zone->rpzs->zones[zone->rpz_num];
+
+		CHECK(dns_db_create(zone->mctx, "rbt", &zone->origin,
+				    dns_dbtype_zone, zone->rdclass,
+				    0, NULL, &db));
+		CHECK(dns_rpz_dbupdate_callback(db, rpz));
+		dns_zone_log(zone, ISC_LOG_WARNING,
+			     "response-policy zone expired; "
+			     "policies unloaded");
+	}
+
+ failure:
+	if (db != NULL) {
+		dns_db_detach(&db);
+	}
+
 	zone_unload(zone);
 }
 
@@ -15156,7 +15194,7 @@ static isc_result_t
 restore_nsec3param(dns_zone_t *zone, dns_db_t *db, dns_dbversion_t *version,
 		   nsec3paramlist_t *nsec3list)
 {
-	isc_result_t result;
+	isc_result_t result = ISC_R_SUCCESS;
 	dns_diff_t diff;
 	dns_rdata_t rdata;
 	nsec3param_t *nsec3p = NULL;
