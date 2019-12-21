@@ -67,7 +67,7 @@ options {\n\
 "	files unlimited;\n"
 #endif
 #if defined(HAVE_GEOIP2) && !defined(WIN32)
-"	geoip-directory \"" MAXMINDDB_PREFIX "/share/GeoIP2\";\n"
+"	geoip-directory \"" MAXMINDDB_PREFIX "/share/GeoIP\";\n"
 #elif defined(HAVE_GEOIP2)
 "	geoip-directory \".\";\n"
 #endif
@@ -197,7 +197,7 @@ options {\n\
 #	sortlist <none>\n\
 	stale-answer-enable false;\n\
 	stale-answer-ttl 1; /* 1 second */\n\
-	synth-from-dnssec yes;\n\
+	synth-from-dnssec no;\n\
 #	topology <none>\n\
 	transfer-format many-answers;\n\
 	v6-bias 50;\n\
